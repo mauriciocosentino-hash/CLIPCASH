@@ -1209,7 +1209,11 @@
         </div>
 
         <div class="sidebar-section">
-            <div class="sidebar-section-title">Clipes</div>
+            <div class="sidebar-section-title">Competicao</div>
+            <a class="sidebar-item" data-page="ranking" onclick="showPage('ranking')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                Ranking
+            </a>
             <a class="sidebar-item" data-page="my-clips" onclick="showPage('my-clips')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23,7 16,12 23,17"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
                 Meus Clipes
@@ -1217,6 +1221,13 @@
             <a class="sidebar-item" data-page="submit" onclick="showPage('submit')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 Enviar Clipe
+            </a>
+        </div>
+        <div class="sidebar-section" id="sidebar-admin" style="display:none;">
+            <div class="sidebar-section-title">Admin</div>
+            <a class="sidebar-item" data-page="admin" onclick="showPage('admin')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Painel Admin
             </a>
         </div>
 
@@ -1668,11 +1679,60 @@
                 </div>
             </div>
 
-            <div style="text-align: center; padding: 32px 0;">
+            <div style="text-align: center; padding: 32px 0; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
                 <button class="btn-participate" onclick="openSubmitModal()">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23,7 16,12 23,17"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
                     Participar — Enviar Clipe
                 </button>
+                <button class="btn-participate" onclick="showPage('ranking')" style="background:var(--text);color:white;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/></svg>
+                    Ver Ranking
+                </button>
+            </div>
+        </div>
+
+        <!-- PAGE: Ranking -->
+        <div class="content page" id="page-ranking">
+            <div class="page-header">
+                <h1>Ranking — Kenny</h1>
+                <p style="color:var(--text-muted);margin-top:4px;">Competicao de Clipes · 19/03 - 29/03</p>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;">
+                <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center;">
+                    <div style="font-size:24px;font-weight:800;color:var(--primary);" id="stat-participants">-</div>
+                    <div style="font-size:12px;color:var(--text-muted);">Participantes</div>
+                </div>
+                <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center;">
+                    <div style="font-size:24px;font-weight:800;color:var(--primary);" id="stat-clips">-</div>
+                    <div style="font-size:12px;color:var(--text-muted);">Clipes</div>
+                </div>
+                <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center;">
+                    <div style="font-size:24px;font-weight:800;color:var(--primary);" id="stat-views">-</div>
+                    <div style="font-size:12px;color:var(--text-muted);">Views totais</div>
+                </div>
+            </div>
+            <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px;">
+                <h3 style="margin-bottom:4px;font-size:14px;">Premios</h3>
+                <div style="font-size:13px;color:var(--text-muted);display:flex;flex-wrap:wrap;gap:12px;">
+                    <span>1o R$300</span><span>2o R$100</span><span>3o R$50</span><span>Melhor clipe R$100</span><span>Mais produtivo R$150</span>
+                </div>
+            </div>
+            <div id="ranking-list">
+                <p style="text-align:center;color:var(--text-muted);padding:40px;">Carregando ranking...</p>
+            </div>
+        </div>
+
+        <!-- PAGE: Admin -->
+        <div class="content page" id="page-admin">
+            <div class="page-header"><h1>Painel Admin</h1></div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;" id="admin-stats"></div>
+            <div style="margin-bottom:32px;">
+                <h2 style="font-size:18px;margin-bottom:12px;">Clips Pendentes</h2>
+                <div id="admin-pending"><p style="color:var(--text-muted);">Carregando...</p></div>
+            </div>
+            <div>
+                <h2 style="font-size:18px;margin-bottom:12px;">Todos os Clips</h2>
+                <div id="admin-all"><p style="color:var(--text-muted);">Carregando...</p></div>
             </div>
         </div>
 
@@ -1875,7 +1935,8 @@
             const names = {
                 'home': '', 'campaigns': 'Todas as Campanhas', 'detail-kenny': 'Kenny',
                 'my-campaigns': 'Minhas Campanhas', 'my-clips': 'Meus Clipes',
-                'submit': 'Enviar Clipe', 'wallet': 'Carteira', 'auth': 'Entrar'
+                'submit': 'Enviar Clipe', 'wallet': 'Carteira', 'auth': 'Entrar',
+                'ranking': 'Ranking', 'admin': 'Admin'
             };
             const sep = document.getElementById('breadcrumb-sep');
             const pageName = document.getElementById('breadcrumb-page');
@@ -1885,6 +1946,8 @@
             // Show/hide submit form based on login
             if (pageId === 'submit') updateSubmitPage();
             if (pageId === 'my-clips') loadMyClips();
+            if (pageId === 'ranking') loadRanking();
+            if (pageId === 'admin') loadAdmin();
         }
 
         // ===== ROLE TOGGLE (HOME) =====
@@ -2167,8 +2230,116 @@
             });
         });
 
+        // ===== RANKING =====
+        async function loadRanking() {
+            const container = document.getElementById('ranking-list');
+            try {
+                const [rankRes, statsRes] = await Promise.all([
+                    fetch('/api/ranking/kenny-comp-1'),
+                    fetch('/api/stats/kenny-comp-1')
+                ]);
+                const ranking = await rankRes.json();
+                const stats = await statsRes.json();
+                document.getElementById('stat-participants').textContent = stats.uniqueParticipants;
+                document.getElementById('stat-clips').textContent = stats.totalClips;
+                document.getElementById('stat-views').textContent = stats.totalViews.toLocaleString();
+                if (ranking.length === 0) {
+                    container.innerHTML = '<div style="text-align:center;padding:60px 20px;"><h2 style="color:var(--text-muted);">Nenhum clipe enviado ainda</h2><p style="color:var(--text-light);margin:8px 0 16px;">Seja o primeiro a participar!</p><button class="btn-primary" onclick="showPage(\'detail-kenny\')">Ver campanha</button></div>';
+                    return;
+                }
+                let html = '<div style="display:flex;flex-direction:column;gap:8px;">';
+                ranking.forEach(function(r, i) {
+                    var pos = (i+1) + 'o';
+                    var highlight = i < 3;
+                    var border = highlight ? 'border-left:4px solid var(--primary);' : '';
+                    html += '<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;' + border + '">';
+                    html += '<div style="display:flex;align-items:center;gap:14px;">';
+                    html += '<span style="font-size:' + (highlight ? '20px' : '14px') + ';font-weight:800;min-width:36px;text-align:center;color:' + (highlight ? 'var(--primary)' : 'var(--text-muted)') + ';">' + pos + '</span>';
+                    html += '<div><div style="font-weight:700;font-size:15px;">' + r.name + '</div>';
+                    html += '<div style="font-size:12px;color:var(--text-muted);">' + r.clipCount + ' clipe' + (r.clipCount !== 1 ? 's' : '') + '</div></div></div>';
+                    html += '<div style="text-align:right;"><div style="font-size:22px;font-weight:800;color:var(--primary);">' + r.totalViews.toLocaleString() + '</div>';
+                    html += '<div style="font-size:11px;color:var(--text-muted);">views</div></div></div>';
+                });
+                html += '</div>';
+                container.innerHTML = html;
+            } catch(e) { container.innerHTML = '<p style="color:var(--danger);text-align:center;">Erro ao carregar ranking</p>'; }
+        }
+
+        // ===== ADMIN =====
+        async function loadAdmin() {
+            try {
+                const [clipsRes, statsRes] = await Promise.all([
+                    fetch('/api/admin/clips/kenny-comp-1'),
+                    fetch('/api/stats/kenny-comp-1')
+                ]);
+                const clips = await clipsRes.json();
+                const stats = await statsRes.json();
+                var pending = clips.filter(function(c) { return c.status === 'pending'; }).length;
+                var approved = clips.filter(function(c) { return c.status === 'approved'; }).length;
+                document.getElementById('admin-stats').innerHTML =
+                    '<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;"><div style="font-size:22px;font-weight:800;color:var(--warning);">' + pending + '</div><div style="font-size:11px;color:var(--text-muted);">Pendentes</div></div>' +
+                    '<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;"><div style="font-size:22px;font-weight:800;color:var(--primary);">' + approved + '</div><div style="font-size:11px;color:var(--text-muted);">Aprovados</div></div>' +
+                    '<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;"><div style="font-size:22px;font-weight:800;">' + stats.totalClips + '</div><div style="font-size:11px;color:var(--text-muted);">Total clips</div></div>' +
+                    '<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;"><div style="font-size:22px;font-weight:800;">' + stats.totalViews.toLocaleString() + '</div><div style="font-size:11px;color:var(--text-muted);">Views totais</div></div>';
+                var pendingClips = clips.filter(function(c) { return c.status === 'pending'; });
+                document.getElementById('admin-pending').innerHTML = pendingClips.length === 0
+                    ? '<p style="color:var(--text-muted);padding:20px;text-align:center;">Nenhum clip pendente</p>'
+                    : renderAdminClips(pendingClips, true);
+                document.getElementById('admin-all').innerHTML = renderAdminClips(clips, false);
+            } catch(e) { document.getElementById('admin-pending').innerHTML = '<p style="color:var(--danger);">Erro ao carregar</p>'; }
+        }
+
+        function renderAdminClips(clips, showApproveReject) {
+            var platformNames = { tiktok: 'TikTok', reels: 'Reels', shorts: 'Shorts' };
+            var statusColors = { pending: 'var(--warning)', approved: 'var(--primary)', rejected: 'var(--danger)' };
+            var statusNames = { pending: 'Pendente', approved: 'Aprovado', rejected: 'Rejeitado' };
+            var html = '<div style="display:flex;flex-direction:column;gap:8px;">';
+            clips.forEach(function(c) {
+                var date = new Date(c.submittedAt).toLocaleDateString('pt-BR');
+                html += '<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;">';
+                html += '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">';
+                html += '<div style="flex:1;min-width:200px;">';
+                html += '<div style="font-weight:700;">' + c.userName + ' <span style="font-weight:400;color:var(--text-muted);font-size:12px;">(' + c.handle + ')</span></div>';
+                html += '<div style="font-size:13px;color:var(--text-muted);">' + (platformNames[c.platform] || c.platform) + ' · ' + c.songName + ' · ' + date + '</div>';
+                html += '<a href="' + c.videoUrl + '" target="_blank" style="font-size:12px;color:var(--primary);word-break:break-all;">' + c.videoUrl + '</a>';
+                html += '</div>';
+                html += '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">';
+                html += '<span style="background:' + (statusColors[c.status] || 'gray') + ';color:white;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;">' + (statusNames[c.status] || c.status) + '</span>';
+                html += '<div style="display:flex;align-items:center;gap:4px;">';
+                html += '<input type="number" value="' + c.views + '" style="width:80px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:13px;" id="views-' + c.id + '">';
+                html += '<button onclick="adminSaveViews(\'' + c.id + '\')" style="padding:6px 10px;background:var(--primary);color:white;border:none;border-radius:6px;font-size:12px;cursor:pointer;">Salvar</button>';
+                html += '</div>';
+                if (showApproveReject) {
+                    html += '<button onclick="adminAction(\'' + c.id + '\',\'approved\')" style="padding:6px 12px;background:var(--primary);color:white;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600;">Aprovar</button>';
+                    html += '<button onclick="adminAction(\'' + c.id + '\',\'rejected\')" style="padding:6px 12px;background:var(--danger);color:white;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600;">Rejeitar</button>';
+                }
+                html += '</div></div></div>';
+            });
+            html += '</div>';
+            return html;
+        }
+
+        async function adminAction(clipId, status) {
+            try {
+                await fetch('/api/clips/' + clipId, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: status }) });
+                loadAdmin();
+            } catch(e) { alert('Erro ao atualizar clip'); }
+        }
+
+        async function adminSaveViews(clipId) {
+            var views = parseInt(document.getElementById('views-' + clipId).value);
+            if (isNaN(views)) return alert('Views deve ser um numero');
+            try {
+                await fetch('/api/clips/' + clipId, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ views: views }) });
+                loadAdmin();
+            } catch(e) { alert('Erro ao salvar views'); }
+        }
+
         // ===== INIT =====
         updateUserUI();
+        if (window.location.search.includes('admin=1')) {
+            document.getElementById('sidebar-admin').style.display = 'block';
+        }
     </script>
 
     <!-- MODAL: Enviar Clipe -->

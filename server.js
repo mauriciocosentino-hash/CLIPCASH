@@ -17,6 +17,29 @@ if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 app.use(express.json());
 app.use(express.static('public'));
 
+// API key middleware for n8n/external integrations
+function requireApiKey(req, res, next) {
+  const key = req.headers['x-api-key'];
+  if (!process.env.CLIPCASH_API_KEY) return next(); // skip if not configured
+  if (key !== process.env.CLIPCASH_API_KEY) {
+    return res.status(401).json({ error: 'API key invalida' });
+  }
+  next();
+}
+
+// Webhook URL for n8n (registration → Google Sheets)
+const N8N_WEBHOOK_URL = process.env.N8N_WEBHOOK_URL || '';
+
+// Fire-and-forget POST to n8n webhook
+function notifyN8n(data) {
+  if (!N8N_WEBHOOK_URL) return;
+  fetch(N8N_WEBHOOK_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  }).catch(() => {}); // silently ignore errors
+}
+
 // Helper: read/write JSON
 function readJSON(file) {
   const fp = path.join(DATA_DIR, file);
@@ -56,6 +79,10 @@ app.post('/api/register', (req, res) => {
 
   users.push(user);
   writeJSON('users.json', users);
+
+  // Send to n8n → Google Sheets (async, non-blocking)
+  notifyN8n({ ...user, userId: user.id });
+
   res.json({ ok: true, user });
 });
 
@@ -139,11 +166,62 @@ app.patch('/api/clips/:id', (req, res) => {
   if (idx === -1) return res.status(404).json({ error: 'Clip nao encontrado' });
 
   const { views, status } = req.body;
-  if (views !== undefined) clips[idx].views = views;
+  if (views !== undefined) {
+    clips[idx].views = views;
+    clips[idx].lastViewsUpdate = new Date().toISOString();
+  }
   if (status) clips[idx].status = status;
 
   writeJSON('clips.json', clips);
   res.json({ ok: true, clip: clips[idx] });
+});
+
+// ===== N8N INTEGRATION =====
+
+// Get all approved clips (for n8n workflow)
+app.get('/api/clips/approved', requireApiKey, (req, res) => {
+  const clips = readJSON('clips.json');
+  const approved = clips.filter(c => c.status === 'approved');
+  res.json(approved);
+});
+
+// Bulk update views (for n8n workflow)
+app.patch('/api/clips/bulk-views', requireApiKey, (req, res) => {
+  const { updates } = req.body;
+  if (!Array.isArray(updates) || updates.length === 0) {
+    return res.status(400).json({ error: 'Body deve conter { updates: [{ id, views }] }' });
+  }
+
+  const clips = readJSON('clips.json');
+  const now = new Date().toISOString();
+  let updated = 0;
+
+  updates.forEach(({ id, views }) => {
+    const idx = clips.findIndex(c => c.id === id);
+    if (idx !== -1 && typeof views === 'number') {
+      clips[idx].views = views;
+      clips[idx].lastViewsUpdate = now;
+      updated++;
+    }
+  });
+
+  writeJSON('clips.json', clips);
+  res.json({ ok: true, updated, total: updates.length });
+});
+
+// ===== ADMIN =====
+
+// Get all clips with user names for admin panel
+app.get('/api/admin/clips/:campaignId', (req, res) => {
+  const clips = readJSON('clips.json');
+  const users = readJSON('users.json');
+  const campaignClips = clips.filter(c => c.campaignId === req.params.campaignId);
+  const enriched = campaignClips.map(c => {
+    const user = users.find(u => u.id === c.userId);
+    return { ...c, userName: user ? user.name : 'Desconhecido', userEmail: user ? user.email : '' };
+  });
+  enriched.sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+  res.json(enriched);
 });
 
 // ===== RANKING =====

@@ -1,0 +1,234 @@
+{
+  "name": "ClipCash - Atualizar Views Diário",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 6
+            }
+          ]
+        }
+      },
+      "id": "cron-trigger",
+      "name": "Cron 1x/dia 06:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.CLIPCASH_URL }}/api/clips/approved",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "fetch-clips",
+      "name": "Buscar Clips Aprovados",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [220, 0],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "ClipCash API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Separar clips por plataforma\nconst clips = $input.all().map(i => i.json);\n\n// Se veio como array dentro de um item\nconst allClips = Array.isArray(clips[0]) ? clips[0] : clips;\n\nconst youtube = allClips.filter(c => c.platform === 'shorts');\nconst tiktok = allClips.filter(c => c.platform === 'tiktok');\nconst instagram = allClips.filter(c => c.platform === 'reels');\n\n// Extrair video IDs do YouTube\nconst ytIds = youtube.map(c => {\n  const match = c.videoUrl.match(/shorts\\/([a-zA-Z0-9_-]+)/) || c.videoUrl.match(/youtu\\.be\\/([a-zA-Z0-9_-]+)/);\n  return { clipId: c.id, videoId: match ? match[1] : null, handle: c.handle };\n}).filter(v => v.videoId);\n\n// Agrupar YouTube IDs em batches de 50\nconst ytBatches = [];\nfor (let i = 0; i < ytIds.length; i += 50) {\n  ytBatches.push(ytIds.slice(i, i + 50));\n}\n\nreturn [{\n  json: {\n    ytBatches,\n    ytClipMap: ytIds,\n    manualUpdate: {\n      tiktok: tiktok.map(c => ({ id: c.id, url: c.videoUrl, handle: c.handle })),\n      instagram: instagram.map(c => ({ id: c.id, url: c.videoUrl, handle: c.handle }))\n    },\n    totalClips: allClips.length,\n    youtubeCount: youtube.length,\n    tiktokCount: tiktok.length,\n    instagramCount: instagram.length\n  }\n}];"
+      },
+      "id": "process-clips",
+      "name": "Processar e Separar Clips",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "yt-has-clips",
+              "leftValue": "={{ $json.youtubeCount }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ]
+        }
+      },
+      "id": "check-youtube",
+      "name": "Tem YouTube?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [660, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Pegar o primeiro batch de IDs do YouTube\nconst data = $input.first().json;\nconst batches = data.ytBatches;\n\nif (!batches || batches.length === 0) return [];\n\n// Retornar cada batch como um item separado\nreturn batches.map(batch => ({\n  json: {\n    videoIds: batch.map(b => b.videoId).join(','),\n    batchItems: batch,\n    clipMap: data.ytClipMap,\n    manualUpdate: data.manualUpdate,\n    totalClips: data.totalClips\n  }\n}));"
+      },
+      "id": "prepare-yt-batches",
+      "name": "Preparar Batches YouTube",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [880, -100]
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/youtube/v3/videos",
+        "qs": {
+          "part": "statistics",
+          "id": "={{ $json.videoIds }}",
+          "key": "={{ $env.YOUTUBE_API_KEY }}"
+        },
+        "options": {}
+      },
+      "id": "youtube-api",
+      "name": "YouTube Data API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1100, -100]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Mapear views do YouTube de volta para clip IDs\nconst ytResponse = $input.first().json;\nconst items = ytResponse.items || [];\n\n// Buscar clipMap do node anterior via $('Preparar Batches YouTube')\nconst prepNode = $('Preparar Batches YouTube').first().json;\nconst clipMap = prepNode.clipMap;\nconst manualUpdate = prepNode.manualUpdate;\n\nconst updates = [];\n\nitems.forEach(item => {\n  const videoId = item.id;\n  const views = parseInt(item.statistics.viewCount, 10);\n  \n  // Encontrar o clip correspondente\n  const mapping = clipMap.find(m => m.videoId === videoId);\n  if (mapping) {\n    updates.push({ id: mapping.clipId, views });\n  }\n});\n\nreturn [{\n  json: {\n    updates,\n    manualUpdate,\n    youtubeUpdated: updates.length,\n    totalClips: prepNode.totalClips\n  }\n}];"
+      },
+      "id": "map-yt-views",
+      "name": "Mapear Views YouTube",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1320, -100]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.CLIPCASH_URL }}/api/clips/bulk-views",
+        "method": "PATCH",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "body": {
+          "json": "={{ JSON.stringify({ updates: $json.updates }) }}"
+        },
+        "options": {}
+      },
+      "id": "bulk-update",
+      "name": "Atualizar Views no ClipCash",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1540, -100],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "ClipCash API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Gerar resumo para notificação\nconst mapNode = $('Mapear Views YouTube').first().json;\nconst bulkResult = $input.first().json;\n\nconst manual = mapNode.manualUpdate || { tiktok: [], instagram: [] };\nconst now = new Date().toISOString().split('T')[0];\n\nlet summary = `📊 **ClipCash - Resumo Diário (${now})**\\n\\n`;\nsummary += `✅ YouTube atualizado: ${mapNode.youtubeUpdated} clips\\n`;\nsummary += `📱 TikTok (manual): ${manual.tiktok.length} clips\\n`;\nsummary += `📸 Instagram (manual): ${manual.instagram.length} clips\\n`;\nsummary += `📈 Total de clips: ${mapNode.totalClips}\\n`;\n\nif (manual.tiktok.length > 0) {\n  summary += `\\n**TikTok - Atualizar manualmente:**\\n`;\n  manual.tiktok.forEach(c => {\n    summary += `- ${c.handle}: ${c.url}\\n`;\n  });\n}\n\nif (manual.instagram.length > 0) {\n  summary += `\\n**Instagram - Atualizar manualmente:**\\n`;\n  manual.instagram.forEach(c => {\n    summary += `- ${c.handle}: ${c.url}\\n`;\n  });\n}\n\n// Dados para Google Sheets\nconst sheetRows = (mapNode.updates || []).map(u => ({\n  date: now,\n  clipId: u.id,\n  platform: 'youtube',\n  views: u.views\n}));\n\nreturn [{\n  json: {\n    summary,\n    sheetRows,\n    discordContent: summary\n  }\n}];"
+      },
+      "id": "generate-summary",
+      "name": "Gerar Resumo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1760, -100]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Sem clips YouTube - pular direto pro resumo\nconst data = $input.first().json;\nconst manual = data.manualUpdate || { tiktok: [], instagram: [] };\nconst now = new Date().toISOString().split('T')[0];\n\nlet summary = `📊 **ClipCash - Resumo Diário (${now})**\\n\\n`;\nsummary += `⚠️ Nenhum clip YouTube para atualizar\\n`;\nsummary += `📱 TikTok (manual): ${manual.tiktok.length} clips\\n`;\nsummary += `📸 Instagram (manual): ${manual.instagram.length} clips\\n`;\nsummary += `📈 Total de clips: ${data.totalClips}\\n`;\n\nif (manual.tiktok.length > 0) {\n  summary += `\\n**TikTok - Atualizar manualmente:**\\n`;\n  manual.tiktok.forEach(c => {\n    summary += `- ${c.handle}: ${c.url}\\n`;\n  });\n}\n\nif (manual.instagram.length > 0) {\n  summary += `\\n**Instagram - Atualizar manualmente:**\\n`;\n  manual.instagram.forEach(c => {\n    summary += `- ${c.handle}: ${c.url}\\n`;\n  });\n}\n\nreturn [{\n  json: {\n    summary,\n    sheetRows: [],\n    discordContent: summary\n  }\n}];"
+      },
+      "id": "no-youtube-summary",
+      "name": "Resumo (Sem YouTube)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [880, 120]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.DISCORD_WEBHOOK_URL }}",
+        "method": "POST",
+        "body": {
+          "json": "={{ JSON.stringify({ content: $json.discordContent }) }}"
+        },
+        "options": {}
+      },
+      "id": "discord-notify",
+      "name": "Notificar Discord",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2200, 0],
+      "notes": "Opcional: Configure DISCORD_WEBHOOK_URL nas variáveis do n8n"
+    }
+  ],
+  "connections": {
+    "Cron 1x/dia 06:00": {
+      "main": [
+        [{ "node": "Buscar Clips Aprovados", "type": "main", "index": 0 }]
+      ]
+    },
+    "Buscar Clips Aprovados": {
+      "main": [
+        [{ "node": "Processar e Separar Clips", "type": "main", "index": 0 }]
+      ]
+    },
+    "Processar e Separar Clips": {
+      "main": [
+        [{ "node": "Tem YouTube?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Tem YouTube?": {
+      "main": [
+        [{ "node": "Preparar Batches YouTube", "type": "main", "index": 0 }],
+        [{ "node": "Resumo (Sem YouTube)", "type": "main", "index": 0 }]
+      ]
+    },
+    "Preparar Batches YouTube": {
+      "main": [
+        [{ "node": "YouTube Data API", "type": "main", "index": 0 }]
+      ]
+    },
+    "YouTube Data API": {
+      "main": [
+        [{ "node": "Mapear Views YouTube", "type": "main", "index": 0 }]
+      ]
+    },
+    "Mapear Views YouTube": {
+      "main": [
+        [{ "node": "Atualizar Views no ClipCash", "type": "main", "index": 0 }]
+      ]
+    },
+    "Atualizar Views no ClipCash": {
+      "main": [
+        [{ "node": "Gerar Resumo", "type": "main", "index": 0 }]
+      ]
+    },
+    "Gerar Resumo": {
+      "main": [
+        [{ "node": "Notificar Discord", "type": "main", "index": 0 }]
+      ]
+    },
+    "Resumo (Sem YouTube)": {
+      "main": [
+        [{ "node": "Notificar Discord", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    { "name": "ClipCash" },
+    { "name": "Automação" }
+  ]
+}
