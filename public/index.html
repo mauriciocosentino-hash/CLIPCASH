@@ -565,6 +565,40 @@
             background: #f8f8f8;
         }
 
+        .tiktok-verified-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #d1fae5;
+            color: #065f46;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 20px;
+            margin-left: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-tiktok-connect {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #000;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background 0.2s;
+        }
+
+        .btn-tiktok-connect:hover { background: #333; }
+        .btn-tiktok-connect:disabled { background: #94a3b8; cursor: not-allowed; }
+
         .campaign-rate {
             font-size: 12px;
             font-weight: 600;
@@ -1239,6 +1273,20 @@
             </a>
         </div>
 
+        <div class="sidebar-section" id="sidebar-logout" style="display:none;">
+            <a class="sidebar-item" onclick="logout()" style="color:var(--danger);">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Sair
+            </a>
+        </div>
+
+        <div class="sidebar-section" id="sidebar-login">
+            <a class="sidebar-item" onclick="showPage('auth')" style="color:var(--primary);font-weight:600;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                Entrar
+            </a>
+        </div>
+
         <div class="sidebar-section">
             <div class="sidebar-section-title">Discord</div>
             <a class="discord-link" href="https://discord.com/channels/1481472655931605004/1483284107633885305" target="_blank">
@@ -1285,6 +1333,9 @@
                     <div class="name">Clipador</div>
                     <div class="role">clipador</div>
                 </div>
+                <button id="logout-btn" onclick="logout()" title="Sair" style="display:none;margin-left:auto;background:none;border:none;cursor:pointer;padding:6px;border-radius:8px;color:var(--text-muted);" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='none'">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                </button>
             </div>
         </div>
     </aside>
@@ -1416,7 +1467,7 @@
                 <div class="campaign-card" onclick="showPage('detail-kenny')">
                     <div class="campaign-card-image">
                         <img src="img/kenny-banner.jpg" alt="Kenny">
-                        <div class="campaign-badge badge-active">Em andamento</div>
+                        <div class="campaign-badge badge-soon">Em breve</div>
                     </div>
                     <div class="campaign-card-body">
                         <div class="campaign-card-title">Kenny — Competicao de Clipes</div>
@@ -1445,7 +1496,7 @@
                             </div>
                             <div class="campaign-dates">
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                                19/03 — 29/03/2026
+                                02/04 — 12/04/2026
                             </div>
                         </div>
                     </div>
@@ -1496,7 +1547,7 @@
                     <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.7), transparent); display: flex; align-items: flex-end; padding: 24px;">
                         <div style="color: white;">
                             <div style="font-size: 36px; font-weight: 900; letter-spacing: -1px; text-shadow: 0 2px 8px rgba(0,0,0,0.5);">Competicao Kenny</div>
-                            <div style="font-size: 14px; opacity: 0.8;">19/03 a 29/03/2026 — R$ 700 em premios</div>
+                            <div style="font-size: 14px; opacity: 0.8;">02/04 a 12/04/2026 — R$ 700 em premios</div>
                         </div>
                     </div>
                 </div>
@@ -1504,11 +1555,11 @@
                     <div class="detail-meta">
                         <div class="detail-meta-item">
                             <span class="label">Status</span>
-                            <span class="value green">Em andamento</span>
+                            <span class="value" style="color: var(--warning);">Em breve</span>
                         </div>
                         <div class="detail-meta-item">
                             <span class="label">Periodo</span>
-                            <span class="value">19/03 — 29/03</span>
+                            <span class="value">02/04 — 12/04</span>
                         </div>
                         <div class="detail-meta-item">
                             <span class="label">Duracao</span>
@@ -1723,6 +1774,13 @@
         <div class="content page" id="page-admin">
             <div class="page-header"><h1>Painel Admin</h1></div>
             <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;" id="admin-stats"></div>
+
+            <!-- Verificacoes pendentes -->
+            <div style="margin-bottom:32px;">
+                <h2 style="font-size:18px;margin-bottom:12px;">Verificacoes de Conta Pendentes</h2>
+                <div id="admin-verifications"><p style="color:var(--text-muted);">Carregando...</p></div>
+            </div>
+
             <div style="margin-bottom:32px;">
                 <h2 style="font-size:18px;margin-bottom:12px;">Clips Pendentes</h2>
                 <div id="admin-pending"><p style="color:var(--text-muted);">Carregando...</p></div>
@@ -1777,7 +1835,7 @@
                 <div class="form-group">
                     <label>Campanha</label>
                     <select id="clip-campaign">
-                        <option value="kenny-comp-1">Kenny — Competicao de Clipes (19/03 - 29/03)</option>
+                        <option value="kenny-comp-1">Kenny — Competicao de Clipes (02/04 - 12/04)</option>
                     </select>
                 </div>
 
@@ -1819,6 +1877,7 @@
                 <div class="form-group">
                     <label>Seu @ na plataforma</label>
                     <input type="text" id="clip-handle" placeholder="@seuusuario">
+                    <div id="clip-verify-warning" style="display:none;font-size:12px;color:var(--warning);margin-top:6px;"></div>
                 </div>
 
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
@@ -1853,6 +1912,48 @@
                 </div>
             </div>
 
+            <!-- Contas Verificadas -->
+            <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 24px;">
+                <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-light);margin-bottom:16px;">Contas verificadas</div>
+                <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">Envie um screenshot do seu perfil para verificar que a conta e sua. Apos verificada, o @ sera usado em todos os seus clipes.</p>
+
+                <!-- TikTok row -->
+                <div id="verify-row-tiktok" style="display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--border);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.32 6.32 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.17 8.17 0 004.78 1.52V6.77a4.85 4.85 0 01-1.01-.08z"/></svg>
+                    <div style="flex:1;">
+                        <div style="font-weight:600;font-size:14px;">TikTok</div>
+                        <div id="verify-status-tiktok" style="font-size:12px;color:var(--text-muted);">Nao verificado</div>
+                    </div>
+                    <span id="verify-badge-tiktok" class="tiktok-verified-badge" style="display:none;">verificado</span>
+                    <button id="verify-btn-tiktok" class="btn-tiktok-connect" style="padding:8px 14px;font-size:12px;" onclick="openVerifyModal('tiktok')">Verificar</button>
+                </div>
+
+                <!-- Instagram row -->
+                <div id="verify-row-instagram" style="display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--border);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="url(#ig-grad)" xmlns="http://www.w3.org/2000/svg">
+                        <defs><linearGradient id="ig-grad" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#f09433"/><stop offset="25%" stop-color="#e6683c"/><stop offset="50%" stop-color="#dc2743"/><stop offset="75%" stop-color="#cc2366"/><stop offset="100%" stop-color="#bc1888"/></linearGradient></defs>
+                        <rect x="2" y="2" width="20" height="20" rx="5" ry="5" fill="none" stroke="url(#ig-grad)" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="url(#ig-grad)" stroke-width="2"/><circle cx="17.5" cy="6.5" r="1.2" fill="#dc2743"/>
+                    </svg>
+                    <div style="flex:1;">
+                        <div style="font-weight:600;font-size:14px;">Instagram Reels</div>
+                        <div id="verify-status-instagram" style="font-size:12px;color:var(--text-muted);">Nao verificado</div>
+                    </div>
+                    <span id="verify-badge-instagram" class="tiktok-verified-badge" style="display:none;background:#E1306C;">verificado</span>
+                    <button id="verify-btn-instagram" class="btn-tiktok-connect" style="padding:8px 14px;font-size:12px;background:#E1306C;" onclick="openVerifyModal('instagram')">Verificar</button>
+                </div>
+
+                <!-- YouTube row -->
+                <div id="verify-row-youtube" style="display:flex;align-items:center;gap:12px;padding:14px 0;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                    <div style="flex:1;">
+                        <div style="font-weight:600;font-size:14px;">YouTube Shorts</div>
+                        <div id="verify-status-youtube" style="font-size:12px;color:var(--text-muted);">Nao verificado</div>
+                    </div>
+                    <span id="verify-badge-youtube" class="tiktok-verified-badge" style="display:none;background:#FF0000;">verificado</span>
+                    <button id="verify-btn-youtube" class="btn-tiktok-connect" style="padding:8px 14px;font-size:12px;background:#FF0000;" onclick="openVerifyModal('youtube')">Verificar</button>
+                </div>
+            </div>
+
             <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; text-align: center;">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-light)" stroke-width="1.5"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
                 <h2 style="margin: 12px 0 4px; font-size: 18px;">Nenhuma transacao</h2>
@@ -1873,6 +1974,10 @@
                         <label>Email</label>
                         <input type="email" id="login-email" placeholder="seu@email.com">
                     </div>
+                    <div class="form-group">
+                        <label>Senha</label>
+                        <input type="password" id="login-password" placeholder="Sua senha">
+                    </div>
                     <div id="login-msg" style="display: none; padding: 10px; border-radius: 8px; margin-bottom: 12px; font-size: 13px;"></div>
                     <button class="btn-primary" style="width: 100%;" onclick="doLogin()">Entrar</button>
                 </div>
@@ -1889,8 +1994,22 @@
                         <input type="email" id="reg-email" placeholder="seu@email.com">
                     </div>
                     <div class="form-group">
+                        <label>Senha</label>
+                        <input type="password" id="reg-password" placeholder="Crie uma senha">
+                    </div>
+                    <div class="form-group">
                         <label>@ TikTok (opcional)</label>
                         <input type="text" id="reg-tiktok" placeholder="@seuusuario">
+                        <div id="reg-tiktok-connect" style="margin-top: 8px; display: none;">
+                            <button type="button" class="btn-tiktok-connect" onclick="connectTikTok('register')">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.32 6.32 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.17 8.17 0 004.78 1.52V6.77a4.85 4.85 0 01-1.01-.08z"/></svg>
+                                Verificar TikTok
+                            </button>
+                            <div id="reg-tiktok-verified" style="display:none; margin-top:6px;">
+                                <span class="tiktok-verified-badge">✓ verificado</span>
+                                <span id="reg-tiktok-verified-name" style="font-size:13px; color:var(--text-muted); margin-left:4px;"></span>
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>@ Instagram (opcional)</label>
@@ -1945,6 +2064,9 @@
             if (pageId === 'my-clips') loadMyClips();
             if (pageId === 'ranking') loadRanking();
             if (pageId === 'admin') loadAdmin();
+            if (pageId === 'wallet') refreshCurrentUser().then(renderVerifiedAccounts);
+
+            localStorage.setItem('clipcash_page', pageId);
         }
 
         // ===== ROLE TOGGLE (HOME) =====
@@ -1961,8 +2083,11 @@
                 document.getElementById('steps-clipper').style.display = 'none';
                 title.textContent = 'Expanda sua presenca digital com clipadores';
                 subtitle.textContent = 'Crie campanhas para que criadores produzam clipes do seu conteudo!';
-                cta.textContent = 'Criar campanha';
-                cta.onclick = () => showPage('campaigns');
+                cta.textContent = 'Em breve...';
+                cta.disabled = true;
+                cta.style.opacity = '0.5';
+                cta.style.cursor = 'not-allowed';
+                cta.onclick = null;
             } else {
                 tabs[1].classList.add('active');
                 document.getElementById('steps-artist').style.display = 'none';
@@ -1970,6 +2095,9 @@
                 title.textContent = 'Ganhe dinheiro criando clipes!';
                 subtitle.textContent = 'Receba pelas views dos seus clipes e voce pode enviar quantos quiser!';
                 cta.textContent = 'Ver campanhas ativas';
+                cta.disabled = false;
+                cta.style.opacity = '';
+                cta.style.cursor = '';
                 cta.onclick = () => showPage('campaigns');
             }
         }
@@ -1983,6 +2111,7 @@
 
         document.getElementById('clip-platform')?.addEventListener('change', function() {
             document.getElementById('clip-url-hint').textContent = platformHints[this.value] || '';
+            autofillHandleForPlatform('clip-platform', 'clip-handle', 'clip-verify-warning');
         });
 
         // ===== AUTH =====
@@ -1998,12 +2127,13 @@
             const data = {
                 name: document.getElementById('reg-name').value,
                 email: document.getElementById('reg-email').value,
+                password: document.getElementById('reg-password').value,
                 tiktok: document.getElementById('reg-tiktok').value,
                 instagram: document.getElementById('reg-instagram').value,
                 youtube: document.getElementById('reg-youtube').value,
                 role: document.getElementById('reg-role').value,
             };
-            if (!data.name || !data.email) return showMsg('reg-msg', 'Nome e email obrigatorios', true);
+            if (!data.name || !data.email || !data.password) return showMsg('reg-msg', 'Nome, email e senha obrigatorios', true);
 
             try {
                 const res = await fetch('/api/register', {
@@ -2022,11 +2152,12 @@
 
         async function doLogin() {
             const email = document.getElementById('login-email').value;
-            if (!email) return showMsg('login-msg', 'Email obrigatorio', true);
+            const password = document.getElementById('login-password').value;
+            if (!email || !password) return showMsg('login-msg', 'Email e senha obrigatorios', true);
 
             try {
                 const res = await fetch('/api/login', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email })
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password })
                 });
                 const json = await res.json();
                 if (!res.ok) return showMsg('login-msg', json.error, true);
@@ -2046,20 +2177,177 @@
             showPage('home');
         }
 
+        async function refreshCurrentUser() {
+            if (!currentUser) return;
+            try {
+                const res = await fetch('/api/users/' + currentUser.id);
+                if (res.ok) {
+                    currentUser = await res.json();
+                    localStorage.setItem('clipcash_user', JSON.stringify(currentUser));
+                }
+            } catch(e) { /* offline, keep cached */ }
+        }
+
         function updateUserUI() {
             const avatar = document.querySelector('.sidebar-user .avatar');
             const nameEl = document.querySelector('.sidebar-user-info .name');
             const roleEl = document.querySelector('.sidebar-user-info .role');
+            const logoutBtn = document.getElementById('logout-btn');
+            const logoutSection = document.getElementById('sidebar-logout');
+            const loginSection = document.getElementById('sidebar-login');
             if (currentUser) {
                 avatar.textContent = currentUser.name.charAt(0).toUpperCase();
                 nameEl.textContent = currentUser.name;
-                roleEl.textContent = currentUser.role === 'artist' ? 'artista' : 'clipador';
+                roleEl.textContent = currentUser.isAdmin ? 'admin' : (currentUser.role === 'artist' ? 'artista' : 'clipador');
+                if (logoutBtn) logoutBtn.style.display = 'block';
+                if (logoutSection) logoutSection.style.display = 'block';
+                if (loginSection) loginSection.style.display = 'none';
             } else {
                 avatar.textContent = '?';
                 nameEl.textContent = 'Visitante';
                 roleEl.textContent = 'nao logado';
+                if (logoutBtn) logoutBtn.style.display = 'none';
+                if (logoutSection) logoutSection.style.display = 'none';
+                if (loginSection) loginSection.style.display = 'block';
             }
+            if (currentUser?.isAdmin) {
+                document.getElementById('sidebar-admin').style.display = 'block';
+            }
+            renderVerifiedAccounts();
         }
+
+        // ===== ACCOUNT VERIFICATION (SCREENSHOT) =====
+
+        const VERIFY_PLATFORMS = {
+            tiktok:    { label: 'TikTok',           hint: 'Abra seu perfil no TikTok e tire um screenshot mostrando seu @username.' },
+            instagram: { label: 'Instagram Reels',  hint: 'Abra seu perfil no Instagram e tire um screenshot mostrando seu @username.' },
+            youtube:   { label: 'YouTube Shorts',   hint: 'Abra seu canal no YouTube e tire um screenshot mostrando o @handle do canal.' },
+        };
+
+        let _verifyPlatform = null;
+
+        function openVerifyModal(platform) {
+            if (!currentUser) return showPage('auth');
+            _verifyPlatform = platform;
+            const info = VERIFY_PLATFORMS[platform];
+            document.getElementById('verify-modal-title').textContent = 'Verificar ' + info.label;
+            document.getElementById('verify-modal-hint').textContent = info.hint;
+            document.getElementById('verify-handle').value = currentUser[platform + 'Handle'] ? '@' + currentUser[platform + 'Handle'] : '';
+            document.getElementById('verify-profile-link').value = currentUser[platform + 'ProfileLink'] || '';
+            document.getElementById('verify-screenshot').value = '';
+            document.getElementById('verify-screenshot-preview').style.display = 'none';
+            document.getElementById('verify-screenshot-preview').src = '';
+            document.getElementById('verify-screenshot-placeholder').style.display = 'block';
+            document.getElementById('verify-msg').style.display = 'none';
+            document.getElementById('modal-verify').classList.add('active');
+        }
+
+        function previewScreenshot(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.getElementById('verify-screenshot-preview');
+                const placeholder = document.getElementById('verify-screenshot-placeholder');
+                img.src = e.target.result;
+                img.style.display = 'block';
+                placeholder.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function submitScreenshotVerification() {
+            if (!currentUser || !_verifyPlatform) return;
+            const handle = document.getElementById('verify-handle').value.trim();
+            const profileLink = document.getElementById('verify-profile-link').value.trim();
+            const fileInput = document.getElementById('verify-screenshot');
+            const file = fileInput.files[0];
+
+            if (!handle) return showMsg('verify-msg', 'Digite seu @ na plataforma', true);
+            if (!profileLink) return showMsg('verify-msg', 'Cole o link do seu perfil', true);
+            if (!file) return showMsg('verify-msg', 'Envie um screenshot do seu perfil', true);
+
+            const btn = document.querySelector('#modal-verify .btn-primary');
+            btn.disabled = true;
+            btn.textContent = 'Enviando...';
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const res = await fetch('/api/verify/screenshot', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            userId: currentUser.id,
+                            platform: _verifyPlatform,
+                            handle,
+                            profileLink,
+                            screenshot: e.target.result,
+                        }),
+                    });
+                    const json = await res.json();
+                    if (!res.ok) {
+                        showMsg('verify-msg', json.error, true);
+                    } else {
+                        // Update local user data — pending approval
+                        const cleanHandle = handle.replace(/^@/, '').trim().toLowerCase();
+                        currentUser[_verifyPlatform + 'Handle'] = cleanHandle;
+                        currentUser[_verifyPlatform + 'Verified'] = false;
+                        currentUser[_verifyPlatform + 'VerificationStatus'] = 'pending';
+                        localStorage.setItem('clipcash_user', JSON.stringify(currentUser));
+                        renderVerifiedAccounts();
+                        showMsg('verify-msg', 'Screenshot enviado! Aguardando aprovacao do admin.', false);
+                        setTimeout(() => closeModal('modal-verify'), 2000);
+                    }
+                } catch (e) {
+                    showMsg('verify-msg', 'Erro de conexao', true);
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = 'Verificar conta';
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function renderVerifiedAccounts() {
+            ['tiktok', 'instagram', 'youtube'].forEach(platform => {
+                if (!currentUser) return;
+                const handle = currentUser[platform + 'Handle'];
+                const status = currentUser[platform + 'VerificationStatus'];
+                const statusEl = document.getElementById('verify-status-' + platform);
+                const badgeEl = document.getElementById('verify-badge-' + platform);
+                const btnEl = document.getElementById('verify-btn-' + platform);
+                if (!statusEl) return;
+
+                if (status === 'approved' && handle) {
+                    statusEl.textContent = '@' + handle;
+                    if (badgeEl) { badgeEl.style.display = 'inline-block'; badgeEl.textContent = 'verificado'; }
+                    if (btnEl) btnEl.textContent = 'Atualizar';
+                } else if (status === 'pending' && handle) {
+                    statusEl.innerHTML = '@' + handle + ' <span style="color:var(--warning);font-weight:600;">· pendente</span>';
+                    if (badgeEl) badgeEl.style.display = 'none';
+                    if (btnEl) btnEl.textContent = 'Reenviar';
+                } else if (status === 'rejected') {
+                    statusEl.innerHTML = '<span style="color:var(--danger);">Rejeitado — reenvie</span>';
+                    if (badgeEl) badgeEl.style.display = 'none';
+                    if (btnEl) btnEl.textContent = 'Verificar';
+                } else {
+                    statusEl.textContent = 'Nao verificado';
+                    if (badgeEl) badgeEl.style.display = 'none';
+                    if (btnEl) btnEl.textContent = 'Verificar';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const tiktokInput = document.getElementById('reg-tiktok');
+            if (tiktokInput) {
+                tiktokInput.addEventListener('input', function() {
+                    const wrap = document.getElementById('reg-tiktok-connect');
+                    if (wrap) wrap.style.display = this.value ? 'block' : 'none';
+                });
+            }
+        });
 
         function updateSubmitPage() {
             const needLogin = document.getElementById('submit-need-login');
@@ -2067,9 +2355,43 @@
             if (currentUser) {
                 needLogin.style.display = 'none';
                 formContent.style.display = 'block';
+                autofillHandleForPlatform('clip-platform', 'clip-handle', 'clip-verify-warning');
             } else {
                 needLogin.style.display = 'block';
                 formContent.style.display = 'none';
+            }
+        }
+
+        // Map: clip platform value → user profile key
+        const CLIP_PLATFORM_KEY = { tiktok: 'tiktok', reels: 'instagram', shorts: 'youtube' };
+
+        function autofillHandleForPlatform(platformSelectId, handleInputId, warningId) {
+            if (!currentUser) return;
+            const platform = document.getElementById(platformSelectId)?.value;
+            const handleInput = document.getElementById(handleInputId);
+            const warning = document.getElementById(warningId);
+            if (!platform || !handleInput) return;
+
+            const profileKey = CLIP_PLATFORM_KEY[platform];
+            const verifiedHandle = profileKey && currentUser[profileKey + 'Handle'];
+            const isVerified = profileKey && currentUser[profileKey + 'Verified'];
+
+            if (isVerified && verifiedHandle) {
+                handleInput.value = '@' + verifiedHandle;
+                handleInput.readOnly = true;
+                handleInput.style.background = '#f0fdf4';
+                handleInput.style.color = 'var(--primary)';
+                if (warning) warning.style.display = 'none';
+            } else {
+                handleInput.value = '';
+                handleInput.readOnly = false;
+                handleInput.style.background = '';
+                handleInput.style.color = '';
+                if (warning) {
+                    const platformLabels = { tiktok: 'TikTok', reels: 'Instagram', shorts: 'YouTube' };
+                    warning.innerHTML = `Voce precisa <a href="#" onclick="showPage('wallet');return false;" style="color:var(--primary);">verificar sua conta de ${platformLabels[platform]}</a> antes de enviar.`;
+                    warning.style.display = 'block';
+                }
             }
         }
 
@@ -2153,6 +2475,10 @@
         function showModalStep(step) {
             document.getElementById('modal-step-1').style.display = step === 1 ? 'block' : 'none';
             document.getElementById('modal-step-2').style.display = step === 2 ? 'block' : 'none';
+            if (step === 2) {
+                const platform = document.getElementById('modal-platform')?.value || 'tiktok';
+                updateModalHandle(platform);
+            }
             document.getElementById('step-1-bar').classList.toggle('active', step >= 1);
             document.getElementById('step-2-bar').classList.toggle('active', step >= 2);
         }
@@ -2160,22 +2486,50 @@
         function updateConnectedAccounts() {
             if (!currentUser) return;
             const el = document.getElementById('modal-connected-accounts');
-            const accounts = [];
-            if (currentUser.tiktok) accounts.push({ platform: 'TikTok', handle: currentUser.tiktok, color: '#000' });
-            if (currentUser.instagram) accounts.push({ platform: 'Reels', handle: currentUser.instagram, color: '#E1306C' });
-            if (currentUser.youtube) accounts.push({ platform: 'Shorts', handle: currentUser.youtube, color: '#FF0000' });
+            const continueBtn = document.getElementById('modal-continue-btn');
+            const all = [
+                { platform: 'TikTok',   key: 'tiktok',    color: '#000' },
+                { platform: 'Reels',    key: 'instagram',  color: '#E1306C' },
+                { platform: 'Shorts',   key: 'youtube',    color: '#FF0000' },
+            ];
+            const accounts = all.filter(a => currentUser[a.key + 'Handle']);
+            const hasVerified = all.some(a => currentUser[a.key + 'VerificationStatus'] === 'approved');
+
+            if (continueBtn) continueBtn.style.display = hasVerified ? 'block' : 'none';
 
             if (accounts.length === 0) {
-                el.innerHTML = '<p style="color:var(--text-light);font-size:13px;">Nenhuma conta conectada ainda.</p>';
+                el.innerHTML = '<p style="color:var(--warning);font-size:13px;">Nenhuma conta verificada. Clique em <strong>Conectar contas</strong> para verificar antes de enviar.</p>';
             } else {
-                el.innerHTML = accounts.map(a =>
-                    `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg);border-radius:8px;margin-bottom:6px;">
+                el.innerHTML = accounts.map(a => {
+                    const status = currentUser[a.key + 'VerificationStatus'];
+                    const isApproved = status === 'approved';
+                    const isPending = status === 'pending';
+                    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg);border-radius:8px;margin-bottom:6px;">
                         <span style="width:8px;height:8px;border-radius:50%;background:${a.color};"></span>
                         <span style="font-size:13px;font-weight:600;">${a.platform}</span>
-                        <span style="font-size:13px;color:var(--text-muted);">${a.handle}</span>
-                    </div>`
-                ).join('');
+                        <span style="font-size:13px;color:var(--text-muted);">@${currentUser[a.key + 'Handle']}</span>
+                        ${isApproved ? '<span class="tiktok-verified-badge" style="margin-left:auto;">verificado</span>' : ''}
+                        ${isPending ? '<span style="margin-left:auto;font-size:12px;color:var(--warning);font-weight:600;">pendente</span>' : ''}
+                    </div>`;
+                }).join('');
             }
+        }
+
+        function updateModalHandle(platform) {
+            if (!currentUser) return;
+            const profileKey = CLIP_PLATFORM_KEY[platform];
+            const handle = profileKey && currentUser[profileKey + 'Handle'];
+            const isVerified = profileKey && currentUser[profileKey + 'VerificationStatus'] === 'approved';
+            const area = document.getElementById('modal-handle-area');
+            if (!area) return;
+
+            if (isVerified && handle) {
+                area.innerHTML = `<input type="text" id="modal-handle" value="@${handle}" readonly style="background:#f0fdf4;color:var(--primary);border-color:var(--primary);">`;
+            } else {
+                const labels = { tiktok: 'TikTok', reels: 'Instagram', shorts: 'YouTube' };
+                area.innerHTML = `<button type="button" style="width:100%;padding:12px;background:var(--warning);color:white;border:none;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;" onclick="closeModal('modal-submit'); showPage('wallet');">Verificar conta no ${labels[platform] || platform}</button>`;
+            }
+            updateModalUrlHint();
         }
 
         const modalPlatformHints = {
@@ -2191,13 +2545,15 @@
 
         async function submitClipModal() {
             if (!currentUser) return;
+            const handleEl = document.getElementById('modal-handle');
+            if (!handleEl) return showMsg('modal-submit-msg', 'Verifique sua conta na plataforma selecionada', true);
             const data = {
                 userId: currentUser.id,
                 campaignId: 'kenny-comp-1',
                 songName: document.getElementById('modal-song').value,
                 platform: document.getElementById('modal-platform').value,
                 videoUrl: document.getElementById('modal-url').value,
-                handle: document.getElementById('modal-handle').value,
+                handle: handleEl.value,
             };
 
             if (!data.songName) return showMsg('modal-submit-msg', 'Selecione uma musica', true);
@@ -2264,6 +2620,8 @@
 
         // ===== ADMIN =====
         async function loadAdmin() {
+            // Load pending verifications
+            loadAdminVerifications();
             try {
                 const [clipsRes, statsRes] = await Promise.all([
                     fetch('/api/admin/clips/kenny-comp-1'),
@@ -2284,6 +2642,51 @@
                     : renderAdminClips(pendingClips, true);
                 document.getElementById('admin-all').innerHTML = renderAdminClips(clips, false);
             } catch(e) { document.getElementById('admin-pending').innerHTML = '<p style="color:var(--danger);">Erro ao carregar</p>'; }
+        }
+
+        async function loadAdminVerifications() {
+            const container = document.getElementById('admin-verifications');
+            try {
+                const apiKey = localStorage.getItem('clipcash_apikey') || '';
+                const res = await fetch('/api/admin/verifications', { headers: { 'x-api-key': apiKey } });
+                const list = await res.json();
+                if (!Array.isArray(list) || list.length === 0) {
+                    container.innerHTML = '<p style="color:var(--text-muted);padding:16px 0;">Nenhuma verificacao pendente.</p>';
+                    return;
+                }
+                const platformLabels = { tiktok: 'TikTok', instagram: 'Instagram', youtube: 'YouTube' };
+                container.innerHTML = list.map(v => `
+                    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin-bottom:12px;display:flex;gap:16px;align-items:flex-start;">
+                        <img src="/api/screenshots/${v.screenshot}?key=${encodeURIComponent(localStorage.getItem('clipcash_apikey')||'')}"
+                             onerror="this.style.display='none'"
+                             style="width:100px;height:160px;object-fit:cover;border-radius:8px;border:1px solid var(--border);flex-shrink:0;"
+                             onclick="window.open(this.src,'_blank')">
+                        <div style="flex:1;">
+                            <div style="font-weight:700;font-size:15px;margin-bottom:2px;">${v.userName}</div>
+                            <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">${v.userEmail}</div>
+                            <div style="font-size:13px;margin-bottom:4px;"><strong>${platformLabels[v.platform] || v.platform}</strong> — <span style="color:var(--primary);">@${v.handle}</span></div>
+                            ${v.profileLink ? `<div style="font-size:12px;margin-bottom:6px;"><a href="${v.profileLink}" target="_blank" style="color:var(--primary);word-break:break-all;">${v.profileLink}</a></div>` : ''}
+                            <div style="font-size:11px;color:var(--text-light);margin-bottom:12px;">Enviado ${new Date(v.submittedAt).toLocaleString('pt-BR')}</div>
+                            <div style="display:flex;gap:8px;">
+                                <button onclick="adminVerifyAction('${v.userId}','${v.platform}','approve')" style="padding:8px 16px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Aprovar</button>
+                                <button onclick="adminVerifyAction('${v.userId}','${v.platform}','reject')" style="padding:8px 16px;background:var(--danger);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Rejeitar</button>
+                            </div>
+                        </div>
+                    </div>`).join('');
+            } catch(e) {
+                container.innerHTML = '<p style="color:var(--danger);">Erro ao carregar verificacoes</p>';
+            }
+        }
+
+        async function adminVerifyAction(userId, platform, action) {
+            const apiKey = localStorage.getItem('clipcash_apikey') || '';
+            try {
+                const res = await fetch(`/api/admin/verifications/${userId}/${platform}/${action}`, {
+                    method: 'POST',
+                    headers: { 'x-api-key': apiKey },
+                });
+                if (res.ok) loadAdminVerifications();
+            } catch(e) { alert('Erro ao processar'); }
         }
 
         function renderAdminClips(clips, showApproveReject) {
@@ -2334,9 +2737,11 @@
 
         // ===== INIT =====
         updateUserUI();
-        if (window.location.search.includes('admin=1')) {
+        if (window.location.search.includes('admin=1') || currentUser?.isAdmin) {
             document.getElementById('sidebar-admin').style.display = 'block';
         }
+        const savedPage = localStorage.getItem('clipcash_page');
+        showPage(savedPage || 'home');
     </script>
 
     <!-- MODAL: Enviar Clipe -->
@@ -2365,26 +2770,26 @@
                     <!-- Filled by JS -->
                 </div>
 
-                <button class="social-connect-btn" onclick="showModalStep(2)">
+                <button class="social-connect-btn" onclick="closeModal('modal-submit'); showPage('wallet');">
                     <div class="icon" style="background: var(--primary-light); color: var(--primary);">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
                     </div>
                     Conectar contas
                 </button>
 
-                <div style="text-align: center; margin-top: 20px;">
+                <div id="modal-continue-btn" style="text-align: center; margin-top: 20px; display: none;">
                     <button class="btn-primary" style="width: 100%;" onclick="showModalStep(2)">Continuar</button>
                 </div>
             </div>
 
-            <!-- Step 2: Select platform + submit link -->
+            <!-- Step 2: Submit clip -->
             <div id="modal-step-2" style="display: none;">
-                <h2>Conectar rede social</h2>
-                <p class="modal-subtitle">Conecte sua conta para enviar clipes com seguranca. Ao vincular, confirmamos que o clipe pertence a voce e garantimos o pagamento correto das recompensas.</p>
+                <h2>Enviar clipe</h2>
+                <p class="modal-subtitle">Selecione a musica, plataforma e cole o link do seu video.</p>
 
                 <div class="form-group">
                     <label>Plataforma</label>
-                    <select id="modal-platform" onchange="updateModalUrlHint()">
+                    <select id="modal-platform" onchange="updateModalHandle(this.value);">
                         <option value="tiktok">TikTok</option>
                         <option value="reels">Instagram Reels</option>
                         <option value="shorts">YouTube Shorts</option>
@@ -2405,7 +2810,9 @@
 
                 <div class="form-group">
                     <label>Seu @ na plataforma</label>
-                    <input type="text" id="modal-handle" placeholder="@seuusuario">
+                    <div id="modal-handle-area">
+                        <input type="text" id="modal-handle" placeholder="@seuusuario">
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -2420,6 +2827,43 @@
 
                 <p class="modal-footer-note">"Sua conta so sera usada para autenticar os envios. Nao publicaremos nada sem sua permissao."</p>
             </div>
+        </div>
+    </div>
+
+    <!-- Screenshot Verification Modal -->
+    <div class="modal-overlay" id="modal-verify">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModal('modal-verify')">&times;</button>
+            <h2 id="verify-modal-title">Verificar conta</h2>
+            <p class="modal-subtitle" id="verify-modal-hint">Envie um screenshot do seu perfil.</p>
+
+            <div class="form-group">
+                <label>Seu @ na plataforma</label>
+                <input type="text" id="verify-handle" placeholder="@seuusuario">
+            </div>
+
+            <div class="form-group">
+                <label>Link do perfil</label>
+                <input type="url" id="verify-profile-link" placeholder="Ex: https://www.tiktok.com/@seuusuario">
+                <div class="form-hint">Cole o link do seu perfil publico na plataforma.</div>
+            </div>
+
+            <div class="form-group">
+                <label>Screenshot do perfil</label>
+                <label id="verify-screenshot-label" style="display:block;cursor:pointer;border:2px dashed var(--border);border-radius:var(--radius);padding:20px;text-align:center;background:var(--bg);">
+                    <input type="file" id="verify-screenshot" accept="image/*" style="display:none;" onchange="previewScreenshot(this)">
+                    <div id="verify-screenshot-placeholder" style="color:var(--text-muted);font-size:14px;">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="display:block;margin:0 auto 8px;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        Clique para enviar screenshot
+                    </div>
+                    <img id="verify-screenshot-preview" style="display:none;max-width:100%;max-height:200px;border-radius:8px;object-fit:contain;">
+                </label>
+                <div class="form-hint">Screenshot do seu perfil mostrando o @. A conta sera registrada automaticamente.</div>
+            </div>
+
+            <div id="verify-msg" style="display:none;padding:12px;border-radius:8px;margin-bottom:16px;font-size:13px;"></div>
+
+            <button class="btn-primary" style="width:100%;" onclick="submitScreenshotVerification()">Verificar conta</button>
         </div>
     </div>
 
